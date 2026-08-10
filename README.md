@@ -45,8 +45,8 @@ into `data/data_cache/` (so exact per-ticker values depend on the
 Yahoo data vintage; the audit's conclusions do not):
 
 ```bash
-SVJMCMC_SCAN=assoc python -m svjmcmc.predvar19 --out results/predvar_assoc.json  # scan benchmark arm
-SVJMCMC_SCAN=seq   python -m svjmcmc.predvar19 --out results/predvar_seq.json    # sequential comparison arm
+SVJMCMC_SCAN=assoc python -m svjmcmc.predvar19 --out results/predvar_assoc.json  # minutes on a GPU
+SVJMCMC_SCAN=seq   python -m svjmcmc.predvar19 --out results/predvar_seq.json    # ~2.5 h on an RTX 4090; the gap is the point
 ```
 
 `all_terminal_commands.sh` runs all of the above.

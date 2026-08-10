@@ -8,6 +8,8 @@ python -m svjmcmc.sbc19 --sims 8 --T 256 --warmup 100 --samples 100 --out result
 
 # Predictive-VaR audit on the 20-ticker demo panel, associative vs
 # sequential scan. Downloads the panel via yfinance on first run if
-# data/data_cache/ is empty.
+# data/data_cache/ is empty. The assoc arm takes minutes on a GPU; the
+# seq arm is the slow comparison arm (about 2.5 hours on an RTX 4090 —
+# that gap is the point).
 SVJMCMC_SCAN=assoc python -m svjmcmc.predvar19 --out results/predvar_assoc.json
 SVJMCMC_SCAN=seq   python -m svjmcmc.predvar19 --out results/predvar_seq.json
