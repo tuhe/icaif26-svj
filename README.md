@@ -98,9 +98,13 @@ python -m svjmcmc.forecast_cohort19 --id AAPL.14593 --cohort 252 \
     --engine vi --out-dir results/cohort19/vi252
 ```
 
-Loop the three commands over the cohort members (about three days on
-one consumer GPU for the full 500-name cohort; names are independent,
-so shard freely). Then:
+Loop the three commands over the cohort members. Measured on an
+RTX 4090: about 20 minutes per NUTS model per name (the
+diagnostic-triggered remediation reruns dominate and vary by name)
+plus about 19 minutes for the rolling VI, so a full serial 500-name
+reproduction is on the order of weeks on one GPU. Names are
+independent — shard freely across GPUs (the original study ran
+sharded); a small subset already exercises every stage. Then:
 
 ```bash
 python scripts/eval_cohort19.py --cohort 252 \
