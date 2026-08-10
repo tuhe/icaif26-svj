@@ -1,8 +1,9 @@
 from __future__ import annotations
 from pathlib import Path
+import os
 import numpy as np
 import pandas as pd
-CACHE = Path(__file__).resolve().parents[3] / 'manuscripts' / 'paper' / 'data_cache'
+CACHE = Path(os.environ.get('SVJMCMC_DATA_CACHE', 'data/data_cache'))
 PHASE1_TICKERS = ['AAPL', 'TSLA', 'SPY']
 PHASE1_START, PHASE1_END = ('2018-01-01', '2024-12-31')
 
@@ -40,7 +41,7 @@ def load_returns(ticker: str, start: str=PHASE1_START, end: str=PHASE1_END, refr
 def load_phase1(refresh: bool=False) -> dict[str, np.ndarray]:
     return {t: load_returns(t, refresh=refresh) for t in PHASE1_TICKERS}
 UNIVERSE = ['AAPL', 'MSFT', 'AMZN', 'NVDA', 'GOOGL', 'GOOG', 'META', 'TSLA', 'AVGO', 'BRK-B', 'JPM', 'V', 'MA', 'UNH', 'HD', 'PG', 'JNJ', 'COST', 'ABBV', 'MRK', 'CVX', 'PEP', 'KO', 'ADBE', 'WMT', 'CRM', 'BAC', 'ACN', 'MCD', 'NFLX', 'LIN', 'TMO', 'ABT', 'CSCO', 'AMD', 'ORCL', 'DIS', 'WFC', 'DHR', 'TXN', 'VZ', 'INTC', 'QCOM', 'PM', 'INTU', 'CAT', 'IBM', 'GE', 'AMGN', 'NOW', 'UNP', 'SPGI', 'HON', 'LOW', 'GS', 'ISRG', 'BKNG', 'AMAT', 'NKE', 'PFE', 'T', 'RTX', 'AXP', 'ELV', 'PGR', 'SYK', 'BSX', 'TJX', 'BLK', 'MS', 'C', 'MDT', 'LMT', 'VRTX', 'ADP', 'GILD', 'DE', 'REGN', 'MU', 'CB', 'ETN', 'PLD', 'ADI', 'MMC', 'BMY', 'LRCX', 'SBUX', 'SCHW', 'KLAC', 'CI', 'SO', 'ZTS', 'DUK', 'MO', 'BX', 'CME', 'ICE', 'EQIX', 'SHW', 'ITW', 'WM', 'PYPL', 'AON', 'CL', 'MCK', 'GD', 'TGT', 'FCX', 'NOC', 'EMR', 'CSX', 'PNC', 'USB', 'APD', 'FDX', 'MAR', 'MMM', 'ORLY', 'NSC', 'HUM', 'PH', 'ROP', 'ECL', 'CDNS', 'PSX', 'MPC', 'APH', 'MSI', 'AJG', 'CARR', 'PCAR', 'SNPS', 'HCA', 'OXY', 'WELL', 'F', 'GM', 'VLO', 'TT', 'EOG', 'COF', 'TFC', 'DXCM', 'AEP', 'SLB', 'MET', 'NXPI', 'SRE', 'TDG', 'AFL', 'FTNT', 'PSA', 'O', 'AIG', 'D', 'KMB', 'GIS', 'CTAS', 'MCHP', 'EW', 'IDXX', 'STZ', 'AMP', 'ROST', 'DOW', 'HLT', 'KHC', 'JCI', 'FIS', 'EXC', 'CMG', 'ADM', 'BK', 'PRU', 'ALL', 'TEL', 'TRV', 'A', 'WMB', 'CNC', 'PAYX', 'DD', 'MNST', 'YUM', 'OKE', 'GWW', 'AME', 'VRSK', 'BIIB', 'CTSH', 'XEL', 'ODFL', 'KR', 'GEHC', 'FAST', 'KMI', 'PCG', 'CMI', 'EA', 'DG', 'VICI', 'ED', 'HSY', 'OTIS', 'DLTR', 'CSGP', 'PPG', 'PEG', 'RSG', 'CCI', 'ON', 'DVN', 'MPWR', 'GLW', 'FANG', 'HES', 'EFX', 'WEC', 'KDP', 'DLR', 'ANSS', 'ZBH', 'AVB', 'TROW', 'WST', 'ULTA', 'HPQ', 'FTV', 'WBD', 'EBAY', 'DAL', 'STT', 'MTD', 'GPN', 'VMC', 'MLM', 'ES', 'NUE', 'EIX', 'AWK', 'CHD', 'PWR', 'WTW', 'RMD', 'DFS', 'HIG', 'TSCO', 'BR', 'EXR', 'APTV', 'NDAQ', 'ROK', 'AEE', 'K', 'IFF', 'WY', 'CBRE', 'GPC', 'LH', 'STE', 'MKC', 'CAH', 'IT', 'DTE', 'VTR', 'CLX', 'ETR', 'HBAN', 'SPY', 'QQQ']
-_SEALED_500 = Path(__file__).resolve().parents[3] / 'manuscripts' / 'paper' / 'universe_sp500.txt'
+_SEALED_500 = Path(os.environ.get('SVJMCMC_UNIVERSE', 'universe_sp500.txt'))
 
 def sealed_universe() -> list[str]:
     if _SEALED_500.exists():
