@@ -16,5 +16,7 @@ pyarrow>=15
 # predvar19's 20-ticker demo panel downloads via yfinance on first run when
 # data/data_cache/ is empty (values then depend on the Yahoo data vintage)
 yfinance>=0.2
+# GARCH-t / filtered-historical-simulation baselines (baselines19)
+arch>=6
 # optional, only for scripts/pull_cohort.py (WRDS/CRSP access required):
 # wrds>=3.2

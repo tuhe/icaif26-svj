@@ -80,10 +80,46 @@ The `yfinance` demo panel used by `predvar19` lives separately under
 `data/data_cache/` (override with `SVJMCMC_DATA_CACHE`; universe list
 override: `SVJMCMC_UNIVERSE`).
 
+## Reproducing the empirical study
+
+With the cohort returns in `data/returns/` (see above), the study is
+per-name forecasting, then a single evaluate pass, then the tables.
+Per name (`TICKER.PERMNO` from the cohort manifest), on one GPU:
+
+```bash
+# NUTS ladder (the SVJ-t arm ran as a 19-name pilot; main arms below)
+python -m svjmcmc.forecast_cohort19 --id AAPL.14593 --cohort 252 \
+    --engine ladder --models sv_hn,svt_hn,svj_hn --out-dir results/cohort19/oos252
+# GARCH-t + FHS baselines (CPU)
+python -m svjmcmc.forecast_cohort19 --id AAPL.14593 --cohort 252 \
+    --engine baselines --out-dir results/cohort19/oos252
+# mean-field VI baseline
+python -m svjmcmc.forecast_cohort19 --id AAPL.14593 --cohort 252 \
+    --engine vi --out-dir results/cohort19/vi252
+```
+
+Loop the three commands over the cohort members (about three days on
+one consumer GPU for the full 500-name cohort; names are independent,
+so shard freely). Then:
+
+```bash
+python scripts/eval_cohort19.py --cohort 252 \
+    --res-dir results/cohort19/oos252 --vi-dir results/cohort19/vi252 \
+    --out results/eval_cohort252.json
+python scripts/make_tables.py --eval results/eval_cohort252.json --out-dir figures
+```
+
+`eval_cohort252.json` carries the headline numbers (the abstract's
+VI breach rate is `breach_1pct.vi_mf_hn.rate_pct`); `make_tables.py`
+writes the manuscript's calibration and skill tables from it. The
+nightly deployment-timing pass is
+`python -m svjmcmc.forecast_cohort19 --cohort 252 --engine deploy
+--out-dir results/cohort19/deploy252`.
+
 ## Status
 
-This release accompanies the submission. The full-universe run driver,
-the evaluation stage against the GARCH-t and filtered historical
-simulation baselines, and the table/figure generators are being ported
-from the research codebase as part of a clean-checkout validation pass;
-the repository will be updated in place.
+This release accompanies the submission. Remaining ports from the
+research codebase, updated in place as the clean-checkout validation
+pass completes: the SV-t robustness rescore inputs
+(`scripts/eval_svt_rescore19.py` ships already), the scan/benchmark
+timing harness behind the frontier table, and the figure generators.
