@@ -41,7 +41,23 @@ returns for point-in-time S&P 500 cohorts (503 names as of 2023-12-28
 for the main dataset, 505 as of 2021-12-27 for the extended dataset),
 pulled via WRDS with index membership resolved as of the last trading
 day before each test period and members retained through subsequent
-delisting. Place per-ticker return files under `data/returns/`.
+delisting.
+
+The pull is scripted, so a licensed user can rebuild the inputs rather
+than reconstruct the query from prose:
+
+```bash
+pip install wrds                      # only needed for this step
+export WRDS_USERNAME=<your-wrds-user>
+python scripts/pull_cohort.py         # writes data/returns/
+```
+
+It writes one file per cohort member,
+`{TICKER}.{PERMNO}_2018-01-01_2024-12-31.parquet` with columns
+`date, ret_pct` (percent daily log-returns), alongside the cohort
+membership it resolved. Set `SVJMCMC_RETURNS` to write elsewhere.
+PERMNO is the identifier used throughout and tickers are labels only, so
+ticker changes do not break cohort membership.
 
 ## Status
 
