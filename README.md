@@ -122,8 +122,4 @@ nightly deployment-timing pass is
 
 ## Status
 
-This release accompanies the submission. Remaining ports from the
-research codebase, updated in place as the clean-checkout validation
-pass completes: the SV-t robustness rescore inputs
-(`scripts/eval_svt_rescore19.py` ships already), the scan/benchmark
-timing harness behind the frontier table, and the figure generators.
+This release accompanies the submission and is updated in place.
