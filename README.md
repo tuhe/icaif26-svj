@@ -9,8 +9,11 @@ Anonymized code release for an ICAIF 2026 submission.
   reconstruction with scan-structured reverse-mode gradients, batched
   independently-adapted No-U-Turn Samplers, forecasting, tail scores,
   and simulation-based calibration
-- `scripts/pull_cohort.py` — rebuilds the CRSP point-in-time cohort
-  returns from WRDS (licensed data, not redistributed)
+- `scripts/` — reproduction tooling: `pull_cohort.py` (rebuilds the
+  CRSP point-in-time cohort returns from WRDS — licensed data, not
+  redistributed), `eval_cohort19.py` + `eval_svt_rescore19.py` (the
+  evaluate stage), and `make_tables.py` / `make_figures.py` (regenerate
+  the manuscript's tables and figures from `results/`)
 - `universe_sp500.txt` — the sealed ticker list used by
   `data.load_universe` (its header documents the selection rule and
   its survivorship caveat)
@@ -119,6 +122,11 @@ writes the manuscript's calibration and skill tables from it. The
 nightly deployment-timing pass is
 `python -m svjmcmc.forecast_cohort19 --cohort 252 --engine deploy
 --out-dir results/cohort19/deploy252`.
+
+`python scripts/make_figures.py` regenerates the remaining figures and
+appendix tables (SBC, scan-scaling, VI-family and deployment tables)
+from whatever is present under `results/`, skipping any stage whose
+inputs are absent — so it is safe to run at any point.
 
 ## Status
 
