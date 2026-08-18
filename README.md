@@ -1,25 +1,24 @@
-# svjmcmc: parallel MCMC for stochastic volatility with jumps on one GPU
+# Parallel MCMC for stochastic volatility with jumps on one GPU
 
-Anonymized code release for an ICAIF 2026 submission.
+Anonymized code for a full replication of an ICAIF 2026 submission.
 
-## Layout
+## Content
 
-- `src/svjmcmc/` — the package: stochastic-volatility model variants
+- `src/svjmcmc/`: stochastic-volatility model variants
   (SV, SV-t, SVJ, SVJ-t), the associative-scan volatility
-  reconstruction with scan-structured reverse-mode gradients, batched
-  independently-adapted No-U-Turn Samplers, forecasting, tail scores,
-  and simulation-based calibration
-- `scripts/` — reproduction tooling: `pull_cohort.py` (rebuilds the
-  CRSP point-in-time cohort returns from WRDS — licensed data, not
+  reconstruction, batched
+  independently-adapted NUTS, evaluation and calibration.
+- `scripts/`: reproduction scripts: `pull_cohort.py` (rebuilds the
+  CRSP point-in-time cohort returns from WRDS data, not
   redistributed), `eval_cohort19.py` + `eval_svt_rescore19.py` (the
   evaluate stage), and `make_tables.py` / `make_figures.py` (regenerate
   the manuscript's tables and figures from `results/`)
-- `universe_sp500.txt` — the sealed ticker list used by
-  `data.load_universe` (its header documents the selection rule and
+- `universe_sp500.txt`: the ticker list used by
+  `data.load_universe` (the header documents the selection rule and
   its survivorship caveat)
-- `results/`, `figures/` — created by the entry points (not committed)
+- `results/`, `figures/`: created by running the above scripts and contains the results.
 
-## Install (about 5 minutes)
+## Install
 
 ```bash
 python -m venv venv
@@ -28,12 +27,10 @@ export PYTHONPATH=src
 ```
 
 Python 3.11 or newer. A CUDA-capable GPU with the matching `jax[cuda]`
-wheel reproduces the paper's timings; everything also runs on CPU at
-reduced speed (the GPU guard prints a warning and continues; set
-`SVJMCMC_REQUIRE_GPU=1` to make it abort instead, e.g. on batch nodes
-where a silent CPU fallback would waste a GPU slot).
+ reproduces the paper's timings; everything also runs on CPU at
+reduced speed.
 
-## No data needed to start
+## No-data start
 
 Simulation-based calibration runs entirely on simulated data:
 
@@ -43,9 +40,9 @@ python -m svjmcmc.sbc19 --out results/sbc19.json                       # paper s
 ```
 
 The predictive-VaR / scan-consistency audit uses a 20-ticker demo
-panel of daily returns; on first run it is downloaded via `yfinance`
-into `data/data_cache/` (so exact per-ticker values depend on the
-Yahoo data vintage; the audit's conclusions do not):
+panel of daily returns; on first run it is downloaded automatically via `yfinance`
+into `data/data_cache/` (so the exact per-ticker values depend on the
+Yahoo data version, however, the audit's conclusions do not):
 
 ```bash
 SVJMCMC_SCAN=assoc python -m svjmcmc.predvar19 --out results/predvar_assoc.json  # minutes on a GPU
@@ -56,7 +53,7 @@ SVJMCMC_SCAN=seq   python -m svjmcmc.predvar19 --out results/predvar_seq.json   
 
 ## Market data
 
-No market data is redistributed. The empirical study uses daily
+No market data is redistributed due to licensing constraints, but it can be downloaded using a standard WRDS subscription. The empirical study uses daily
 returns for point-in-time S&P 500 cohorts (503 names as of 2023-12-28
 for the main dataset, 505 as of 2021-12-27 for the extended dataset),
 pulled via WRDS with index membership resolved as of the last trading
@@ -85,7 +82,7 @@ override: `SVJMCMC_UNIVERSE`).
 
 ## Reproducing the empirical study
 
-With the cohort returns in `data/returns/` (see above), the study is
+With the cohort returns in `data/returns/` (see the above step), the study is
 per-name forecasting, then a single evaluate pass, then the tables.
 Per name (`TICKER.PERMNO` from the cohort manifest), on one GPU:
 
@@ -102,12 +99,10 @@ python -m svjmcmc.forecast_cohort19 --id AAPL.14593 --cohort 252 \
 ```
 
 Loop the three commands over the cohort members. Measured on an
-RTX 4090: about 20 minutes per NUTS model per name (the
-diagnostic-triggered remediation reruns dominate and vary by name)
-plus about 19 minutes for the rolling VI, so a full serial 500-name
+RTX 4090: about 20 minutes per NUTS model per ticker
+plus about 20 minutes for the rolling VI, so a full serial 500-name
 reproduction is on the order of weeks on one GPU. Names are
-independent — shard freely across GPUs (the original study ran
-sharded); a small subset already exercises every stage. Then:
+independent, so in a real run, it should be run in parallel across several GPUs; a small subset of tickers already exercises every stage. Then run:
 
 ```bash
 python scripts/eval_cohort19.py --cohort 252 \
@@ -116,18 +111,16 @@ python scripts/eval_cohort19.py --cohort 252 \
 python scripts/make_tables.py --eval results/eval_cohort252.json --out-dir figures
 ```
 
-`eval_cohort252.json` carries the headline numbers (the abstract's
-VI breach rate is `breach_1pct.vi_mf_hn.rate_pct`); `make_tables.py`
+`eval_cohort252.json` contains the headline numbers (the abstract's
+VI breach rate is `breach_1pct.vi_mf_hn.rate_pct`), and `make_tables.py`
 writes the manuscript's calibration and skill tables from it. The
 nightly deployment-timing pass is
+
 `python -m svjmcmc.forecast_cohort19 --cohort 252 --engine deploy
 --out-dir results/cohort19/deploy252`.
 
 `python scripts/make_figures.py` regenerates the remaining figures and
 appendix tables (SBC, scan-scaling, VI-family and deployment tables)
 from whatever is present under `results/`, skipping any stage whose
-inputs are absent — so it is safe to run at any point.
+inputs are absent, making it safe to run at any point.
 
-## Status
-
-This release accompanies the submission and is updated in place.
